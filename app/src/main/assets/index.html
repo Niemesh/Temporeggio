@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d4ed8">
+<title>Temporeggio</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--text:#14171f;--muted:#6b7280;--accent:#1d4ed8;--accent-text:#fff;--border:#e2e5ea;--danger:#b91c1c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1218;--card:#1a1f29;--text:#eef0f4;--muted:#9aa3b2;--accent:#3b82f6;--accent-text:#fff;--border:#2a3140;--danger:#f87171}}
+:root[data-theme="dark"]{--bg:#0f1218;--card:#1a1f29;--text:#eef0f4;--muted:#9aa3b2;--accent:#3b82f6;--accent-text:#fff;--border:#2a3140;--danger:#f87171}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{margin:4px 0 2px;font-size:20px;letter-spacing:.5px;text-align:center}
+.today{text-align:center;font-size:13px;color:var(--muted);margin:0 0 12px;text-transform:capitalize}
+h2{font-size:15px;margin:20px 0 6px}
+.tabs{display:flex;gap:6px;margin:0 0 14px}
+.tabs button{flex:1;padding:11px 4px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font:inherit;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.sec{display:none}.sec.on{display:block}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
+input,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font:inherit}
+textarea{resize:vertical}
+.hint{font-size:13px;color:var(--muted);margin:10px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.w{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.w b{font-size:16px;text-align:center}
+.w.on{border-color:var(--accent);border-width:2px}.w.on .n{color:var(--accent)}
+.st{display:flex;align-items:center;gap:12px}
+.sb{width:46px;height:46px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font:inherit;font-size:24px;font-weight:700;cursor:pointer;touch-action:manipulation;user-select:none}
+.sb:active{background:var(--accent);color:var(--accent-text)}
+.n{font-size:28px;font-weight:700;min-width:24px;text-align:center;font-variant-numeric:tabular-nums}
+.btns{display:flex;gap:8px;margin-top:8px}
+.b{flex:1;text-align:center;padding:13px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text);font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:block}
+.b.p{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.r{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:6px}
+.r .pos{width:26px;font-weight:700;color:var(--muted)}.r .nm{flex:1;font-weight:600}.r .sc{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.r .sc small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.r.win{border-color:var(--accent)}
+.r .x{background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;padding:4px 6px}
+.r .d{flex:1;font-size:13px;color:var(--muted)}.r .d b{display:block;color:var(--text);font-size:14px}
+.tally{font-weight:600;margin:6px 0 12px}
+.empty{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<h1>Temporeggio</h1>
+<p class="today" id="today"></p>
+<div class="tabs"><button data-t="g" class="on">Gioca</button><button data-t="r">Risultato</button><button data-t="s">Storico</button></div>
+
+<section id="s-g" class="sec on">
+<label for="name">Il tuo nome</label>
+<input id="name" maxlength="20" placeholder="nome o nickname" autocomplete="off">
+<label for="bdate">Giorno della scommessa</label>
+<input id="bdate" type="date">
+<p class="hint">Con − e + scegli quante volte verrà detta ogni parola (0 = mai). Si salva da solo.</p>
+<div class="grid" id="gbox"></div>
+<label for="btxt">Messaggio da mandare ai colleghi</label>
+<textarea id="btxt" rows="5" readonly></textarea>
+<div class="btns"><button class="b" id="bcopy">Copia</button><a class="b p" id="bwa" target="_blank" rel="noopener">WhatsApp</a></div>
+</section>
+
+<section id="s-r" class="sec">
+<label for="rdate">Giorno</label>
+<input id="rdate" type="date">
+<p class="hint">Imposta quante volte è stata detta davvero ogni parola. Numero esatto = 1 punto; a parità vince chi ha lo scarto totale più basso.</p>
+<div class="grid" id="rbox"></div>
+<label for="paste">Giocate dei colleghi (incolla i messaggi, anche tutti insieme)</label>
+<textarea id="paste" rows="5" placeholder="Incolla qui i messaggi ricevuti"></textarea>
+<div class="btns"><button class="b p" id="calc">Calcola classifica</button></div>
+<div id="rout" style="display:none">
+<h2 id="rtitle">Classifica</h2>
+<div id="rank"></div>
+<label for="rtxt">Messaggio con la classifica</label>
+<textarea id="rtxt" rows="6" readonly></textarea>
+<div class="btns"><button class="b" id="rcopy">Copia</button><a class="b p" id="rwa" target="_blank" rel="noopener">WhatsApp</a></div>
+</div>
+<p class="hint" id="rmsg"></p>
+<h2>Hai ricevuto il codice risultato?</h2>
+<textarea id="pres" rows="3" placeholder="Incolla qui il messaggio dell’arbitro"></textarea>
+<div class="btns"><button class="b" id="seeres">Vedi come sono andato</button></div>
+<p class="hint" id="seemsg"></p>
+</section>
+
+<section id="s-s" class="sec">
+<div class="tally" id="tally"></div>
+<div id="hbox"></div>
+</section>
+</main>
+<script>
+var WORDS=["VCO","Mario Frosio","Olzeri","Verbania","Cantamessa","Adiramef","Gara","Ragazzo"],N=WORDS.length;
+var $=function(id){return document.getElementById(id)};
+var SK="temporeggio-bet-v2",DB={name:"",bets:{},hist:[]};
+try{var o=JSON.parse(localStorage.getItem(SK)||"null");if(o&&typeof o==="object"){DB.name=o.name||"";DB.bets=o.bets||{};DB.hist=Array.isArray(o.hist)?o.hist:[];}}catch(e){}
+function save(){try{localStorage.setItem(SK,JSON.stringify(DB))}catch(e){}}
+function ymd(d){var m=d.getMonth()+1,g=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(g<10?"0":"")+g}
+function plus(k){var d=new Date();d.setDate(d.getDate()+k);return ymd(d)}
+function it(s){var p=s.split("-");return p[2]+"/"+p[1]+"/"+p[0]}
+function cname(){return (DB.name||"").replace(/[:|\n\r]/g," ").trim().slice(0,20)||"Anonimo"}
+function setArr(a,s){for(var i=0;i<N;i++)a[i]=s?(parseInt(s.charAt(i),10)||0):0}
+function score(a,b){var h=0,e=0;for(var i=0;i<N;i++){var x=+a.charAt(i),y=+b.charAt(i);if(x===y)h++;e+=Math.abs(x-y)}return{h:h,e:e}}
+function list(a){var p=[];WORDS.forEach(function(w,i){if(a[i])p.push(w+" ×"+a[i])});return p.join(", ")||"nessuna parola"}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+var armed={};
+function twice(btn,key,orig,msg){
+  if(armed[key]){clearTimeout(armed[key]);armed[key]=null;btn.textContent=orig;return true}
+  btn.textContent=msg;armed[key]=setTimeout(function(){armed[key]=null;btn.textContent=orig},4000);return false}
+function copy(ta,btn){
+  var ok=false;ta.focus();ta.select();try{ta.setSelectionRange(0,99999)}catch(e){}
+  try{ok=document.execCommand("copy")}catch(e){}
+  if(!ok&&navigator.clipboard){try{navigator.clipboard.writeText(ta.value);ok=true}catch(e){}}
+  var o=btn.textContent;btn.textContent=ok?"Copiato ✓":"Seleziona e copia a mano";setTimeout(function(){btn.textContent=o},2000)}
+function stepper(box,arr,cb){
+  var ns=[],cs=[];
+  WORDS.forEach(function(w,i){
+    var c=el("div","w"),row=el("div","st"),m=el("button","sb","−"),p=el("button","sb","+"),n=el("span","n","0");
+    c.appendChild(el("b","",w));row.appendChild(m);row.appendChild(n);row.appendChild(p);c.appendChild(row);
+    m.onclick=function(){if(arr[i]>0){arr[i]--;paint();cb()}};
+    p.onclick=function(){if(arr[i]<9){arr[i]++;paint();cb()}};
+    box.appendChild(c);ns.push(n);cs.push(c)});
+  function paint(){ns.forEach(function(n,i){n.textContent=arr[i];cs[i].classList.toggle("on",arr[i]>0)})}
+  paint();return paint}
+document.querySelectorAll(".tabs button").forEach(function(b){b.onclick=function(){
+  document.querySelectorAll(".tabs button").forEach(function(x){x.classList.toggle("on",x===b)});
+  ["g","r","s"].forEach(function(k){$("s-"+k).classList.toggle("on",k===b.dataset.t)})}});
+
+/* GIOCA */
+var bet=[];setArr(bet,"");
+$("name").value=DB.name;
+var pbet=stepper($("gbox"),bet,function(){DB.bets[$("bdate").value]=bet.join("");save();upd()});
+function betText(){var d=$("bdate").value,now=new Date().toLocaleString("it-IT",{dateStyle:"short",timeStyle:"short"});
+  return "🎲 Temporeggio: "+cname()+" scommette per il "+it(d)+"\nPrevisione: "+list(bet)+"\nInviata il "+now+"\nCodice: TMP2:"+d+":"+cname()+":"+bet.join("")}
+function upd(){var t=betText();$("btxt").value=t;$("bwa").href="https://wa.me/?text="+encodeURIComponent(t)}
+function loadBet(){var d=$("bdate").value;if(!d||d<plus(1)){d=plus(1);$("bdate").value=d}
+  setArr(bet,DB.bets[d]);pbet();upd()}
+$("name").oninput=function(){DB.name=this.value;save();upd()};
+$("bdate").onchange=loadBet;
+$("bcopy").onclick=function(){copy($("btxt"),this)};
+
+/* RISULTATO */
+var rb=[];setArr(rb,"");
+var prb=stepper($("rbox"),rb,function(){});
+function histFor(d){return DB.hist.filter(function(h){return h.d===d})[0]}
+function loadRes(){var d=$("rdate").value;if(!d||d>plus(0)){d=plus(0);$("rdate").value=d}
+  var h=histFor(d);setArr(rb,h?h.res:"");prb();$("rout").style.display="none"}
+$("rdate").onchange=loadRes;
+function parse(t){var re=/TMP2:(\d{4}-\d{2}-\d{2}):([^:\n\r]+):(\d+)/g,m,out=[];
+  while((m=re.exec(t)))out.push({d:m[1],n:m[2].trim(),b:m[3]});return out}
+function same(a,b){return a.h===b.h&&a.e===b.e}
+function fmtSc(r){return r.h+"/"+N+" (scarto "+r.e+")"}
+function renderRank(box,rank){box.innerHTML="";var pos=0,prev=null;
+  rank.forEach(function(r,i){if(!prev||!same(r,prev)){pos=i+1;prev=r}
+    var row=el("div","r"+(same(r,rank[0])?" win":"")),sc=el("span","sc",r.h+"/"+N+(same(r,rank[0])?" 🏆":""));
+    sc.appendChild(el("small","","scarto "+r.e));
+    row.appendChild(el("span","pos",String(pos)));row.appendChild(el("span","nm",r.n));row.appendChild(sc);box.appendChild(row)})}
+$("calc").onclick=function(){
+  var d=$("rdate").value,res=rb.join(""),map={},msg=$("rmsg");
+  parse($("paste").value).forEach(function(p){if(p.d===d&&p.b.length===N)map[p.n]=p.b});
+  if(DB.name.trim()&&DB.bets[d]&&!(cname() in map))map[cname()]=DB.bets[d];
+  var rank=Object.keys(map).map(function(n){var s=score(map[n],res);return{n:n,h:s.h,e:s.e}}).sort(function(a,b){return b.h-a.h||a.e-b.e||a.n.localeCompare(b.n)});
+  if(!rank.length){msg.textContent="Nessuna giocata valida per il "+it(d)+". Controlla di aver incollato i messaggi giusti.";$("rout").style.display="none";return}
+  msg.textContent="";
+  DB.hist=DB.hist.filter(function(h){return h.d!==d});DB.hist.push({d:d,res:res,rank:rank});save();
+  $("rtitle").textContent="Classifica del "+it(d);renderRank($("rank"),rank);
+  var pos=0,prev=null;
+  var lines=rank.map(function(r,i){if(!prev||!same(r,prev)){pos=i+1;prev=r}return pos+". "+r.n+" "+fmtSc(r)+(same(r,rank[0])?" 🏆":"")});
+  var t="🏆 Temporeggio: risultati del "+it(d)+"\nDette: "+list(rb)+"\n"+lines.join("\n")+"\nCodice risultato: TMPR2:"+d+":"+res;
+  $("rtxt").value=t;$("rwa").href="https://wa.me/?text="+encodeURIComponent(t);
+  $("rout").style.display="block";renderHist()};
+$("rcopy").onclick=function(){copy($("rtxt"),this)};
+$("seeres").onclick=function(){
+  var m=/TMPR2:(\d{4}-\d{2}-\d{2}):(\d+)/.exec($("pres").value),o=$("seemsg");
+  if(!m||m[2].length!==N){o.textContent="Codice non valido: incolla il messaggio completo dell’arbitro.";return}
+  $("rdate").value=m[1];setArr(rb,m[2]);prb();
+  var mine=DB.bets[m[1]];
+  if(mine){var s=score(mine,m[2]);o.textContent="Giocata del "+it(m[1])+": numero esatto su "+s.h+" parole su "+N+", scarto totale "+s.e+"."}
+  else o.textContent="Non hai una giocata salvata per il "+it(m[1])+"."};
+
+/* STORICO */
+function renderHist(){
+  var box=$("hbox"),tally={};box.innerHTML="";
+  DB.hist.forEach(function(h){h.rank.forEach(function(r){if(same(r,h.rank[0]))tally[r.n]=(tally[r.n]||0)+1})});
+  var names=Object.keys(tally).sort(function(a,b){return tally[b]-tally[a]});
+  $("tally").textContent=names.length?"🏆 Giorni vinti: "+names.map(function(n){return n+" "+tally[n]}).join(" · "):"";
+  if(!DB.hist.length){box.appendChild(el("p","empty","Ancora nessun giorno salvato. Calcola una classifica nella scheda Risultato."));return}
+  DB.hist.slice().sort(function(a,b){return a.d<b.d?1:-1}).forEach(function(h){
+    var top=h.rank[0],w=h.rank.filter(function(r){return same(r,top)}).map(function(r){return r.n}).join(", ");
+    var row=el("div","r"),d=el("div","d");d.appendChild(el("b","",it(h.d)));d.appendChild(document.createTextNode("Vince: "+w+" ("+fmtSc(top)+")"));
+    var x=el("button","x","✕");x.setAttribute("aria-label","Elimina");
+    x.onclick=function(){if(twice(x,"h"+h.d,"✕","Elimina?")){DB.hist=DB.hist.filter(function(k){return k.d!==h.d});save();renderHist()}};
+    row.appendChild(d);row.appendChild(x);box.appendChild(row)})}
+
+/* DATA DEL TELEFONO */
+var curDay="";
+function sync(){
+  var t=plus(0),first=!curDay;
+  $("today").textContent="Oggi: "+new Date().toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  $("bdate").min=plus(1);$("rdate").max=t;
+  if(t!==curDay){curDay=t;$("bdate").value=plus(1);$("rdate").value=t;loadBet();loadRes();if(!first)renderHist()}}
+document.addEventListener("visibilitychange",function(){if(!document.hidden)sync()});
+window.addEventListener("focus",sync);
+setInterval(sync,30000);
+sync();renderHist();
+</script>
+</body>
+</html>

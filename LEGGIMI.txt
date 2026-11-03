@@ -1,0 +1,15 @@
+TEMPOREGGIO - progetto Android
+
+OPZIONE A (senza installare nulla, gratis):
+1. Crea un account su github.com e un nuovo repository (privato va bene).
+2. Carica TUTTO il contenuto di questa cartella (compresa la cartella nascosta .github).
+3. Vai nella scheda "Actions" > "Build APK" e attendi circa 3-5 minuti.
+4. Apri l'esecuzione completata, in fondo trovi "Temporeggio-apk": scaricalo,
+   estrai lo zip e ottieni app-debug.apk.
+5. Passa l'APK al telefono e installalo (consenti "installa da origini sconosciute").
+
+OPZIONE B (Android Studio):
+1. Apri questa cartella con Android Studio.
+2. Build > Build APK(s). L'APK esce in app/build/outputs/apk/debug/.
+
+Per modificare punti o parole: app/src/main/assets/index.html
